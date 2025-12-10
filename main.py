@@ -5,6 +5,8 @@ import seaborn as sns
 import numpy as np
 from matplotlib import cm
 from matplotlib.colors import LinearSegmentedColormap
+import plotly.graph_objects as go
+import plotly.express as px
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -48,76 +50,103 @@ def load_data():
     
     return dataframes, combined_df
 
-def create_custom_cmap():
-    """Crea un mapa de colores personalizado para el heatmap"""
-    colors = ['#d73027', '#fc8d59', '#fee090', '#e0f3f8', '#91bfdb', '#4575b4']
-    n_bins = 100
-    cmap = LinearSegmentedColormap.from_list('custom', colors, N=n_bins)
-    return cmap
-
-def plot_happiness_heatmap(df_dict, selected_year):
+def normalize_country_names(df):
     """
-    Visualización 1: Mapa de calor de países más y menos felices
-    Diseño profesional con gradientes y etiquetas optimizadas
+    Normaliza los nombres de países para que coincidan con los códigos ISO de Plotly
+    """
+    country_mapping = {
+        'United States': 'United States of America',
+        'United Kingdom': 'United Kingdom',
+        'Czech Republic': 'Czechia',
+        'Taiwan Province of China': 'Taiwan',
+        'Hong Kong S.A.R., China': 'Hong Kong',
+        'Trinidad and Tobago': 'Trinidad and Tobago',
+        'Northern Cyprus': 'Cyprus',
+        'North Cyprus': 'Cyprus',
+        'Somaliland region': 'Somalia',
+        'Palestinian Territories': 'Palestine',
+        'Ivory Coast': "Côte d'Ivoire",
+    }
+    
+    df['Country_Display'] = df['Country']  # Guardar nombre original para display
+    df['Country_Map'] = df['Country'].replace(country_mapping)
+    return df
+
+def plot_happiness_world_map(df_dict, selected_year):
+    """
+    Visualización 1: Mapamundi interactivo de felicidad por país
+    Los países más felices aparecen en rojo oscuro
+    Hover muestra nombre del país y valor de felicidad
     """
     df = df_dict[selected_year].copy()
     
-    # Ordenar por Happiness Score
-    df = df.sort_values('Happiness Score', ascending=False)
+    # Normalizar nombres de países
+    df = normalize_country_names(df)
     
-    # Seleccionar top 20 y bottom 20 países
-    top_countries = df.head(20)
-    bottom_countries = df.tail(20)
-    selected_countries = pd.concat([top_countries, bottom_countries])
+    # Crear el mapamundi con Plotly
+    # Invertir la escala de colores para que rojo oscuro = más feliz
+    fig = go.Figure(data=go.Choropleth(
+        locations=df['Country_Map'],
+        z=df['Happiness Score'],
+        locationmode='country names',
+        colorscale=[
+            [0, '#2c7bb6'],      # Azul oscuro (menos feliz)
+            [0.2, '#abd9e9'],    # Azul claro
+            [0.4, '#ffffbf'],    # Amarillo
+            [0.6, '#fdae61'],    # Naranja
+            [0.8, '#d7191c'],    # Rojo
+            [1, '#8B0000']       # Rojo oscuro (más feliz)
+        ],
+        reversescale=False,
+        marker_line_color='white',
+        marker_line_width=0.5,
+        colorbar=dict(
+            title=dict(
+                text="Nivel de<br>Felicidad",
+                font=dict(size=14, family='Arial Black')
+            ),
+            thickness=20,
+            len=0.7,
+            x=1.02,
+            tickfont=dict(size=12),
+        ),
+        hovertemplate='<b>%{location}</b><br>' +
+                      'Puntuación de Felicidad: %{z:.3f}<br>' +
+                      'Ranking: #%{customdata}<br>' +
+                      '<extra></extra>',
+        customdata=df['Happiness Rank'],
+        text=df['Country_Display'],
+    ))
     
-    # Preparar datos para el heatmap
-    variables = ['Economy (GDP per Capita)', 'Family', 'Health (Life Expectancy)', 
-                 'Freedom', 'Trust (Government Corruption)', 'Generosity']
+    # Actualizar el layout para un diseño profesional
+    fig.update_layout(
+        title=dict(
+            text=f'🌍 Mapa Mundial de Felicidad - {selected_year}<br>' +
+                 '<sub>Los países en rojo oscuro son los más felices | Pasa el ratón sobre cada país para más información</sub>',
+            x=0.5,
+            xanchor='center',
+            font=dict(size=24, family='Arial Black', color='#1f77b4')
+        ),
+        geo=dict(
+            showframe=True,
+            showcoastlines=True,
+            coastlinecolor='#333333',
+            projection_type='natural earth',
+            bgcolor='rgba(243, 243, 243, 1)',
+            landcolor='rgb(243, 243, 243)',
+            showcountries=True,
+            countrycolor='white',
+            showlakes=True,
+            lakecolor='rgb(204, 229, 255)',
+            showocean=True,
+            oceancolor='rgb(230, 245, 255)',
+        ),
+        height=700,
+        margin=dict(l=0, r=0, t=100, b=0),
+        paper_bgcolor='white',
+        font=dict(family='Arial', size=12),
+    )
     
-    heatmap_data = selected_countries[variables].values
-    countries = selected_countries['Country'].values
-    
-    # Crear figura con diseño profesional
-    fig, ax = plt.subplots(figsize=(14, 12))
-    
-    # Crear heatmap con estilo personalizado
-    cmap = create_custom_cmap()
-    im = ax.imshow(heatmap_data, aspect='auto', cmap=cmap, interpolation='nearest')
-    
-    # Configurar ejes
-    ax.set_xticks(np.arange(len(variables)))
-    ax.set_yticks(np.arange(len(countries)))
-    ax.set_xticklabels(variables, rotation=45, ha='right', fontsize=10, fontweight='bold')
-    ax.set_yticklabels(countries, fontsize=9)
-    
-    # Añadir línea separadora entre top y bottom
-    ax.axhline(y=19.5, color='white', linewidth=3, linestyle='--', alpha=0.7)
-    
-    # Añadir valores en las celdas
-    for i in range(len(countries)):
-        for j in range(len(variables)):
-            text = ax.text(j, i, f'{heatmap_data[i, j]:.2f}',
-                          ha="center", va="center", color="white", 
-                          fontsize=7, fontweight='bold',
-                          bbox=dict(boxstyle='round', facecolor='black', alpha=0.3))
-    
-    # Barra de color profesional
-    cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label('Valor Estandarizado', rotation=270, labelpad=20, fontsize=11, fontweight='bold')
-    cbar.ax.tick_params(labelsize=9)
-    
-    # Título y subtítulo
-    ax.set_title(f'Análisis de Felicidad por País - {selected_year}\n' + 
-                 'Top 20 Países (Arriba) vs Bottom 20 Países (Abajo)',
-                 fontsize=16, fontweight='bold', pad=20)
-    
-    # Añadir anotaciones
-    ax.text(-0.5, 10, 'MÁS\nFELICES', fontsize=12, fontweight='bold', 
-            color=COLORS['success'], rotation=90, va='center')
-    ax.text(-0.5, 30, 'MENOS\nFELICES', fontsize=12, fontweight='bold', 
-            color=COLORS['danger'], rotation=90, va='center')
-    
-    plt.tight_layout()
     return fig
 
 def plot_happiness_evolution(combined_df):
@@ -253,48 +282,159 @@ def plot_feature_importance(combined_df):
     plt.tight_layout()
     return fig
 
-def main():
-    # Cargar datos
-    df_dict, combined_df = load_data()
-    
+def show_home():
+    """Página de inicio con navegación a las diferentes secciones"""
     # Header principal
     st.markdown("""
-        <h1 style='text-align: center; color: #1f77b4; padding: 20px;'>
+        <h1 style='text-align: center; color: #1f77b4; padding: 20px; font-size: 48px;'>
             🌍 World Happiness Dashboard 😊
         </h1>
-        <p style='text-align: center; font-size: 18px; color: #666;'>
+        <p style='text-align: center; font-size: 20px; color: #666; margin-bottom: 30px;'>
             Análisis Profesional de Felicidad Mundial (2015-2019)
         </p>
         <hr style='border: 2px solid #1f77b4;'>
     """, unsafe_allow_html=True)
     
-    # Sidebar con información
-    with st.sidebar:
-        st.image("https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f30d.png", width=100)
-        st.title("📊 Panel de Control")
-        st.markdown("---")
-        
-        # Métricas generales
-        st.subheader("📈 Estadísticas Globales")
-        total_countries = combined_df['Country'].nunique()
-        avg_happiness = combined_df['Happiness Score'].mean()
-        
-        col1, col2 = st.columns(2)
-        col1.metric("Países", total_countries)
-        col2.metric("Años", "5")
-        
-        st.markdown("---")
-        st.info("💡 **Nota**: Los datos han sido estandarizados para una mejor comparación.")
-        
-    # Visualización 1: Mapa de Calor
-    st.header("🗺️ Mapa de Calor de Felicidad por País")
+    # Introducción
+    st.markdown("""
+    <div style='text-align: center; padding: 20px; background-color: #f0f8ff; border-radius: 10px; margin: 20px 0;'>
+        <h3 style='color: #1f77b4;'>Bienvenido al Dashboard de Felicidad Mundial</h3>
+        <p style='font-size: 16px; color: #555;'>
+            Explora datos de felicidad de más de 150 países a través de visualizaciones interactivas.
+            Descubre qué hace felices a las naciones y cómo ha evolucionado la felicidad en los últimos años.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Sección de botones
+    st.markdown("### 📊 Selecciona una Visualización")
+    
+    col1, col2, col3 = st.columns(3, gap="large")
+    
+    with col1:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    padding: 20px; border-radius: 15px; text-align: center; height: 200px;
+                    display: flex; flex-direction: column; justify-content: center;'>
+            <h2 style='color: white; margin: 0;'>🗺️</h2>
+            <h3 style='color: white; margin: 10px 0;'>Mapamundi</h3>
+            <p style='color: #f0f0f0; font-size: 14px;'>Visualización geográfica interactiva</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🌍 Ver Mapamundi Interactivo", use_container_width=True, key="btn_map"):
+            st.session_state.page = "mapamundi"
+            st.rerun()
+        
+        st.markdown("""
+        <p style='text-align: center; padding: 10px; font-size: 14px; color: #666;'>
+            Explora la felicidad por países en un mapa mundial. Los países más felices aparecen en rojo oscuro.
+        </p>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+                    padding: 20px; border-radius: 15px; text-align: center; height: 200px;
+                    display: flex; flex-direction: column; justify-content: center;'>
+            <h2 style='color: white; margin: 0;'>📈</h2>
+            <h3 style='color: white; margin: 10px 0;'>Evolución Temporal</h3>
+            <p style='color: #f0f0f0; font-size: 14px;'>Tendencias a lo largo del tiempo</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("📊 Ver Evolución Temporal", use_container_width=True, key="btn_evolution"):
+            st.session_state.page = "evolucion"
+            st.rerun()
+        
+        st.markdown("""
+        <p style='text-align: center; padding: 10px; font-size: 14px; color: #666;'>
+            Analiza cómo ha cambiado la felicidad en diferentes países desde 2015 hasta 2019.
+        </p>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+                    padding: 20px; border-radius: 15px; text-align: center; height: 200px;
+                    display: flex; flex-direction: column; justify-content: center;'>
+            <h2 style='color: white; margin: 0;'>🎯</h2>
+            <h3 style='color: white; margin: 10px 0;'>Factores Clave</h3>
+            <p style='color: #f0f0f0; font-size: 14px;'>Variables que impactan la felicidad</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("📉 Ver Análisis de Variables", use_container_width=True, key="btn_factors"):
+            st.session_state.page = "factores"
+            st.rerun()
+        
+        st.markdown("""
+        <p style='text-align: center; padding: 10px; font-size: 14px; color: #666;'>
+            Descubre qué factores tienen mayor impacto en la felicidad: economía, familia, salud y más.
+        </p>
+        """, unsafe_allow_html=True)
+    
+    # Insights generales
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("### 🔍 Insights Rápidos")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("🌍 Países Analizados", "158", delta="5 años de datos")
+    
+    with col2:
+        st.metric("📊 Variables", "6", delta="Factores de felicidad")
+    
+    with col3:
+        st.metric("🥇 País Más Feliz 2019", "Finlandia")
+    
+    with col4:
+        st.metric("📈 Factor Principal", "Economía", delta="Mayor correlación")
+    
+    # Footer
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("""
+        <p style='text-align: center; color: #888; font-size: 14px;'>
+            Dashboard creado con ❤️ usando Streamlit, Matplotlib, Seaborn y Plotly<br>
+            Datos: World Happiness Report (2015-2019)
+        </p>
+    """, unsafe_allow_html=True)
+
+def show_mapamundi(df_dict):
+    """Página del mapamundi interactivo"""
+    # Botón de regreso
+    if st.button("⬅️ Volver al Inicio", key="back_map"):
+        st.session_state.page = "home"
+        st.rerun()
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Header
+    st.markdown("""
+        <h1 style='text-align: center; color: #667eea;'>
+            🗺️ Mapamundi Interactivo de Felicidad
+        </h1>
+    """, unsafe_allow_html=True)
+    
+    # Descripción
     col1, col2 = st.columns([3, 1])
     with col1:
         st.markdown("""
-        Este mapa de calor muestra los **20 países más felices** (arriba) y los **20 países menos felices** (abajo),
-        analizando las diferentes variables que componen el índice de felicidad.
-        """)
+        <div style='background-color: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;'>
+            <p style='font-size: 16px; margin: 0;'>
+            Este mapamundi interactivo muestra la distribución de la felicidad a nivel mundial. 
+            Los países en <strong style='color: #8B0000;'>rojo oscuro</strong> son los más felices, 
+            mientras que los países en <strong style='color: #2c7bb6;'>azul</strong> son los menos felices.
+            </p>
+            <p style='font-size: 14px; margin-top: 10px; color: #666;'>
+            💡 <strong>Tip</strong>: Pasa el ratón sobre cualquier país para ver su nombre, puntuación de felicidad y ranking.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
         selected_year = st.select_slider(
@@ -303,74 +443,265 @@ def main():
             value=2019
         )
     
-    with st.spinner('Generando mapa de calor...'):
-        fig1 = plot_happiness_heatmap(df_dict, selected_year)
-        st.pyplot(fig1)
-        plt.close()
+    st.markdown("<br>", unsafe_allow_html=True)
     
+    # Visualización
+    with st.spinner('🌍 Generando mapamundi interactivo...'):
+        fig = plot_happiness_world_map(df_dict, selected_year)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    # Información adicional
     st.markdown("---")
+    st.markdown("### 📊 Estadísticas del Año Seleccionado")
     
-    # Visualización 2: Evolución Temporal
-    st.header("📈 Evolución de la Felicidad a lo Largo del Tiempo")
+    df_year = df_dict[selected_year]
+    top_country = df_year.loc[df_year['Happiness Rank'] == 1, 'Country'].values[0]
+    bottom_country = df_year.loc[df_year['Happiness Rank'] == df_year['Happiness Rank'].max(), 'Country'].values[0]
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(f"🥇 País Más Feliz ({selected_year})", top_country)
+    with col2:
+        st.metric("📍 Total de Países", len(df_year))
+    with col3:
+        st.metric(f"🌐 País Menos Feliz ({selected_year})", bottom_country)
+
+def show_evolucion(combined_df):
+    """Página de evolución temporal"""
+    # Botón de regreso
+    if st.button("⬅️ Volver al Inicio", key="back_evolution"):
+        st.session_state.page = "home"
+        st.rerun()
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Header
     st.markdown("""
-    Análisis de la evolución temporal de la felicidad en países representativos de diferentes regiones del mundo,
-    comparados con la **media global**.
-    """)
+        <h1 style='text-align: center; color: #f5576c;'>
+            📈 Evolución de la Felicidad a lo Largo del Tiempo
+        </h1>
+    """, unsafe_allow_html=True)
     
-    with st.spinner('Generando gráfico de evolución...'):
-        fig2 = plot_happiness_evolution(combined_df)
-        st.pyplot(fig2)
-        plt.close()
-    
-    st.markdown("---")
-    
-    # Visualización 3: Importancia de Variables
-    st.header("🎯 Variables que Más Afectan a la Felicidad")
+    # Descripción
     st.markdown("""
-    Análisis de **correlación** y **valores promedio** de los factores que influyen en la felicidad mundial.
-    Las correlaciones positivas más altas indican mayor impacto en la felicidad.
-    """)
+    <div style='background-color: #fff5f5; padding: 20px; border-radius: 10px; border-left: 4px solid #f5576c;'>
+        <p style='font-size: 16px; margin: 0;'>
+        Análisis de la evolución temporal de la felicidad en países representativos de diferentes regiones del mundo,
+        comparados con la <strong>media global</strong>.
+        </p>
+        <p style='font-size: 14px; margin-top: 10px; color: #666;'>
+        El gráfico superior muestra las tendencias individuales por país, mientras que el gráfico inferior 
+        presenta la distribución completa de todos los países en cada año.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    with st.spinner('Generando análisis de variables...'):
-        fig3 = plot_feature_importance(combined_df)
-        st.pyplot(fig3)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Visualización
+    with st.spinner('📊 Generando gráficos de evolución...'):
+        fig = plot_happiness_evolution(combined_df)
+        st.pyplot(fig)
         plt.close()
     
-    # Footer con insights
+    # Insights
     st.markdown("---")
-    st.subheader("🔍 Insights Clave")
+    st.markdown("### 💡 Observaciones Clave")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div style='background-color: #e8f5e9; padding: 15px; border-radius: 8px;'>
+            <h4 style='color: #2e7d32; margin-top: 0;'>✅ Tendencias Positivas</h4>
+            <ul style='color: #555;'>
+                <li>Algunos países muestran mejoras constantes</li>
+                <li>La media global se mantiene relativamente estable</li>
+                <li>Países desarrollados lideran consistentemente</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style='background-color: #fff3e0; padding: 15px; border-radius: 8px;'>
+            <h4 style='color: #e65100; margin-top: 0;'>⚠️ Áreas de Atención</h4>
+            <ul style='color: #555;'>
+                <li>Variabilidad significativa entre regiones</li>
+                <li>Algunos países muestran declives</li>
+                <li>Distribución amplia indica desigualdad global</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+def show_factores(combined_df):
+    """Página de análisis de factores"""
+    # Botón de regreso
+    if st.button("⬅️ Volver al Inicio", key="back_factors"):
+        st.session_state.page = "home"
+        st.rerun()
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Header
+    st.markdown("""
+        <h1 style='text-align: center; color: #00f2fe;'>
+            🎯 Variables que Más Afectan a la Felicidad
+        </h1>
+    """, unsafe_allow_html=True)
+    
+    # Descripción
+    st.markdown("""
+    <div style='background-color: #e1f5fe; padding: 20px; border-radius: 10px; border-left: 4px solid #00f2fe;'>
+        <p style='font-size: 16px; margin: 0;'>
+        Análisis de <strong>correlación</strong> y <strong>valores promedio</strong> de los factores que influyen 
+        en la felicidad mundial. Las correlaciones positivas más altas indican mayor impacto en la felicidad.
+        </p>
+        <p style='font-size: 14px; margin-top: 10px; color: #666;'>
+        El gráfico izquierdo muestra cómo cada factor se relaciona con la felicidad, 
+        mientras que el derecho presenta los valores promedio de cada variable.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Visualización
+    with st.spinner('🎯 Generando análisis de variables...'):
+        fig = plot_feature_importance(combined_df)
+        st.pyplot(fig)
+        plt.close()
+    
+    # Insights detallados
+    st.markdown("---")
+    st.markdown("### 🔍 Análisis Detallado por Factor")
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
-        **💰 Economía**
-        - Factor con mayor correlación
-        - El PIB per cápita es fundamental
-        """)
+        <div style='background-color: #fff9c4; padding: 15px; border-radius: 8px; height: 100%;'>
+            <h4 style='color: #f57f17; margin-top: 0;'>💰 Economía (PIB)</h4>
+            <p style='color: #555; font-size: 14px;'>
+                <strong>Factor #1</strong><br>
+                Mayor correlación con felicidad.<br>
+                El desarrollo económico es fundamental.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        **👨‍👩‍👧‍👦 Familia**
-        - Segundo factor más importante
-        - Apoyo social crucial
-        """)
+        <div style='background-color: #f3e5f5; padding: 15px; border-radius: 8px; height: 100%;'>
+            <h4 style='color: #6a1b9a; margin-top: 0;'>👨‍👩‍👧‍👦 Familia y Apoyo Social</h4>
+            <p style='color: #555; font-size: 14px;'>
+                <strong>Factor #2</strong><br>
+                Las relaciones sociales son cruciales.<br>
+                El apoyo comunitario importa.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        **🏥 Salud**
-        - Esperanza de vida vital
-        - Correlación muy positiva
-        """)
+        <div style='background-color: #e8f5e9; padding: 15px; border-radius: 8px; height: 100%;'>
+            <h4 style='color: #2e7d32; margin-top: 0;'>🏥 Salud</h4>
+            <p style='color: #555; font-size: 14px;'>
+                <strong>Factor #3</strong><br>
+                Esperanza de vida saludable.<br>
+                Acceso a salud de calidad.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-        <p style='text-align: center; color: #888; font-size: 14px;'>
-            Dashboard creado con ❤️ usando Streamlit, Matplotlib y Seaborn | 
-            Datos: World Happiness Report
-        </p>
-    """, unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div style='background-color: #e3f2fd; padding: 15px; border-radius: 8px; height: 100%;'>
+            <h4 style='color: #1565c0; margin-top: 0;'>🕊️ Libertad</h4>
+            <p style='color: #555; font-size: 14px;'>
+                Libertad para tomar decisiones de vida.<br>
+                Importante pero variable.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style='background-color: #fce4ec; padding: 15px; border-radius: 8px; height: 100%;'>
+            <h4 style='color: #c2185b; margin-top: 0;'>🤝 Generosidad</h4>
+            <p style='color: #555; font-size: 14px;'>
+                Donaciones y ayuda a otros.<br>
+                Menor correlación pero presente.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style='background-color: #efebe9; padding: 15px; border-radius: 8px; height: 100%;'>
+            <h4 style='color: #4e342e; margin-top: 0;'>🏛️ Confianza (Gobierno)</h4>
+            <p style='color: #555; font-size: 14px;'>
+                Percepción de corrupción.<br>
+                Afecta la felicidad general.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+def main():
+    # Inicializar estado de sesión
+    if 'page' not in st.session_state:
+        st.session_state.page = "home"
+    
+    # Cargar datos
+    df_dict, combined_df = load_data()
+    
+    # Sidebar con información
+    with st.sidebar:
+        st.image("https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f30d.png", width=100)
+        st.title("📊 Panel de Control")
+        st.markdown("---")
+        
+        # Navegación en sidebar
+        st.subheader("🧭 Navegación")
+        if st.button("🏠 Inicio", use_container_width=True):
+            st.session_state.page = "home"
+            st.rerun()
+        if st.button("🗺️ Mapamundi", use_container_width=True):
+            st.session_state.page = "mapamundi"
+            st.rerun()
+        if st.button("📈 Evolución", use_container_width=True):
+            st.session_state.page = "evolucion"
+            st.rerun()
+        if st.button("🎯 Factores", use_container_width=True):
+            st.session_state.page = "factores"
+            st.rerun()
+        
+        st.markdown("---")
+        
+        # Métricas generales
+        st.subheader("📈 Estadísticas Globales")
+        total_countries = combined_df['Country'].nunique()
+        
+        col1, col2 = st.columns(2)
+        col1.metric("Países", total_countries)
+        col2.metric("Años", "5")
+        
+        st.markdown("---")
+        st.info("💡 **Nota**: Los datos han sido estandarizados para una mejor comparación.")
+    
+    # Renderizar la página actual
+    if st.session_state.page == "home":
+        show_home()
+    elif st.session_state.page == "mapamundi":
+        show_mapamundi(df_dict)
+    elif st.session_state.page == "evolucion":
+        show_evolucion(combined_df)
+    elif st.session_state.page == "factores":
+        show_factores(combined_df)
 
 if __name__ == "__main__":
     main()

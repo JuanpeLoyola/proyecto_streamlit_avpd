@@ -1,28 +1,48 @@
 # 🌍 World Happiness Dashboard
 
-Un dashboard profesional interactivo para visualizar y analizar datos de felicidad mundial (2015-2019).
+Un dashboard profesional interactivo para visualizar y analizar datos de felicidad mundial (2015-2019) con interfaz de navegación moderna por páginas.
 
-## 🎯 Características
+## ✨ Características Destacadas
 
-### 📊 Visualizaciones Principales
+### 🏠 Interfaz Moderna con Navegación
 
-1. **Mapa de Calor Interactivo**
-   - Compara los 20 países más felices vs los 20 menos felices
-   - Control deslizante para cambiar entre años (2015-2019)
-   - Visualización detallada de todas las variables de felicidad
-   - Diseño profesional con gradientes de color personalizados
+- **Página de inicio limpia y elegante** con tarjetas de navegación
+- **Sistema de navegación múltiple**: botones en página principal y sidebar
+- **Diseño con gradientes modernos** en cada sección
+- **Carga bajo demanda**: cada visualización se genera solo cuando la visitas
+- **Experiencia de usuario optimizada**: navegación intuitiva y fluida
 
-2. **Gráfico de Evolución Temporal**
-   - Seguimiento de la felicidad en países representativos
-   - Comparación con la media global
-   - Violin plots para mostrar distribución por año
-   - Análisis de tendencias a lo largo del tiempo
+### 📊 Tres Visualizaciones Principales
 
-3. **Análisis de Variables Clave**
-   - Correlación de cada factor con la felicidad
-   - Valores promedio con desviación estándar
-   - Identificación de los factores más influyentes
-   - Visualización dual para análisis completo
+#### 🗺️ **1. Mapamundi Interactivo**
+   - **Visualización geográfica completa** con Plotly
+   - Países más felices en **rojo oscuro**, menos felices en **azul**
+   - **Hover interactivo**: pasa el ratón sobre cualquier país para ver:
+     - Nombre del país
+     - Puntuación de felicidad
+     - Ranking mundial
+   - **Control deslizante** para cambiar entre años (2015-2019)
+   - Proyección Natural Earth para representación realista
+   - Estadísticas del año seleccionado
+
+#### 📈 **2. Evolución Temporal**
+   - **Gráfico de líneas** con países representativos de diferentes regiones
+   - Comparación con la **media global**
+   - **Violin plots** mostrando la distribución completa por año
+   - Análisis de tendencias a lo largo del tiempo (2015-2019)
+   - Insights sobre tendencias positivas y áreas de atención
+
+#### 🎯 **3. Análisis de Factores**
+   - **Correlación de Pearson** de cada factor con la felicidad
+   - **Valores promedio** con desviación estándar
+   - Visualización dual: correlaciones + promedios
+   - **Análisis detallado** de los 6 factores clave:
+     - 💰 Economía (PIB per cápita)
+     - 👨‍👩‍👧‍👦 Familia y apoyo social
+     - 🏥 Salud y esperanza de vida
+     - 🕊️ Libertad para tomar decisiones
+     - 🤝 Generosidad
+     - 🏛️ Confianza en el gobierno
 
 ## 🚀 Instalación
 
@@ -71,29 +91,107 @@ Los datos provienen del World Happiness Report y han sido preprocesados para inc
 
 ## 🎨 Tecnologías Utilizadas
 
-- **Streamlit**: Framework para el dashboard web
-- **Matplotlib**: Visualizaciones estáticas profesionales
-- **Seaborn**: Visualizaciones estadísticas avanzadas
-- **Pandas**: Manipulación y análisis de datos
-- **NumPy**: Operaciones numéricas
+- **Streamlit** - Framework para el dashboard web interactivo
+- **Plotly** - Mapamundi interactivo con hover tooltips
+- **Matplotlib** - Visualizaciones estáticas profesionales
+- **Seaborn** - Visualizaciones estadísticas avanzadas
+- **Pandas** - Manipulación y análisis de datos
+- **NumPy** - Operaciones numéricas y procesamiento
+- **scikit-learn** - Estandarización de datos
 
-## 👨‍💻 Características Profesionales
+## � Características Profesionales
 
-- ✅ Diseño responsivo y moderno
-- ✅ Paletas de colores personalizadas
-- ✅ Visualizaciones interactivas
-- ✅ Carga de datos optimizada con caché
-- ✅ Métricas y estadísticas en tiempo real
-- ✅ Insights automáticos
-- ✅ Documentación completa
+### Diseño y UX
+- ✅ **Interfaz de navegación por páginas** con estado de sesión
+- ✅ **Diseño responsivo** y moderno con gradientes
+- ✅ **Tarjetas de navegación** con colores distintivos
+- ✅ **Sidebar persistente** con navegación rápida
+- ✅ **Botones de regreso** en cada página
+
+### Visualizaciones
+- ✅ **Mapamundi interactivo** con Plotly (hover, zoom, pan)
+- ✅ **Gráficos duales** para análisis completo
+- ✅ **Paletas de colores personalizadas** profesionales
+- ✅ **Violin plots** para distribuciones
+- ✅ **Heatmaps** con valores numéricos
+
+### Rendimiento
+- ✅ **Carga de datos optimizada** con `@st.cache_data`
+- ✅ **Carga bajo demanda** de visualizaciones
+- ✅ **Spinners con mensajes** durante procesamiento
+- ✅ **Gestión de estado** eficiente con `session_state`
+
+### Contenido
+- ✅ **Métricas en tiempo real** con `st.metric`
+- ✅ **Insights automáticos** organizados por sección
+- ✅ **Descripciones contextuales** en cada visualización
+- ✅ **Cajas de información** con bordes de color
+- ✅ **Documentación completa** (README + INTERFAZ.md)
+
+## 🧭 Navegación del Dashboard
+
+### Tres Formas de Navegar:
+
+1. **Página de Inicio**: Click en las tarjetas de colores con gradientes
+2. **Sidebar**: Botones de navegación siempre visibles
+3. **Botones de Regreso**: "⬅️ Volver al Inicio" en cada página
+
+### Flujo de Usuario:
+
+```
+🏠 Inicio
+   ↓
+   ├─→ 🗺️ Mapamundi → Explora países → 🏠 Volver
+   ├─→ 📈 Evolución → Analiza tendencias → 🏠 Volver
+   └─→ 🎯 Factores → Descubre impactos → 🏠 Volver
+```
 
 ## 🔍 Insights Principales
 
-1. La **economía (PIB)** es el factor con mayor correlación con la felicidad
-2. El **apoyo familiar/social** es el segundo factor más importante
-3. La **salud y esperanza de vida** tienen un impacto significativo
-4. Existe variación considerable en la felicidad entre regiones
+### Factores de Felicidad (Orden de Impacto):
+
+1. **💰 Economía (PIB per cápita)** - Mayor correlación con felicidad
+2. **👨‍👩‍👧‍👦 Familia y apoyo social** - Segundo factor más importante
+3. **🏥 Salud (esperanza de vida)** - Impacto significativo en bienestar
+4. **🕊️ Libertad** - Importante para decisiones de vida
+5. **🏛️ Confianza (gobierno)** - Afecta percepción general
+6. **🤝 Generosidad** - Menor correlación pero presente
+
+### Tendencias Temporales:
+
+- 📊 La media global se mantiene relativamente **estable** (2015-2019)
+- 🌍 Existe **variación considerable** entre regiones
+- 🇫🇮 **Finlandia** lidera como país más feliz en 2019
+- 📈 Países desarrollados mantienen **consistencia** en el top
+
+### Geografía de la Felicidad:
+
+- 🔴 **Europa Nórdica**: Consistentemente más feliz (rojo oscuro en mapa)
+- 🟡 **América y Asia**: Niveles medios de felicidad
+- 🔵 **África Subsahariana**: Desafíos en indicadores de felicidad
+
+## 📝 Archivos de Documentación
+
+- **README.md** (este archivo): Documentación general del proyecto
+- **INTERFAZ.md**: Detalles de la nueva interfaz y navegación
+- **pyproject.toml**: Configuración de dependencias con uv
+
+## 🤝 Contribución
+
+Este proyecto es parte de prácticas académicas. Para mejoras o sugerencias:
+
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📜 Licencia
+
+Proyecto académico - Master AVPD
 
 ---
 
-**Creado con ❤️ usando Streamlit, Matplotlib y Seaborn**
+**✨ Creado con ❤️ usando Streamlit, Plotly, Matplotlib y Seaborn**
+
+**📊 Datos: World Happiness Report (2015-2019)**
