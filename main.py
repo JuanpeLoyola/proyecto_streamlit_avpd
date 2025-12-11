@@ -149,71 +149,80 @@ def plot_happiness_world_map(df_dict, selected_year):
     
     return fig
 
-def plot_happiness_evolution(combined_df):
+def plot_happiness_evolution(combined_df, selected_countries, show_global_avg=True):
     """
     Visualización 2: Evolución de la felicidad a lo largo de los años
-    Gráfico de líneas con múltiples países destacados
+    Gráfico de líneas simplificado con países seleccionados por el usuario
     """
-    # Calcular la media global por año
-    global_avg = combined_df.groupby('Year')['Happiness Score'].mean().reset_index()
+    # Crear figura con alta resolución (DPI alto para mejor calidad)
+    fig, ax = plt.subplots(figsize=(16, 9), dpi=150)
     
-    # Seleccionar países representativos de diferentes regiones
-    countries_to_plot = ['Switzerland', 'United States', 'Brazil', 'Japan', 
-                        'Germany', 'Australia', 'South Africa', 'India']
+    # Si no hay países seleccionados, mostrar mensaje
+    if not selected_countries:
+        ax.text(0.5, 0.5, 'Selecciona al menos un país para visualizar', 
+                ha='center', va='center', fontsize=18, color='gray',
+                transform=ax.transAxes, fontweight='bold')
+        ax.set_xlim(2015, 2019)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+        return fig
     
-    # Crear figura con diseño profesional
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), 
-                                    gridspec_kw={'height_ratios': [2, 1]})
+    # Generar paleta de colores vibrantes
+    colors_palette = sns.color_palette("bright", len(selected_countries))
     
-    # Gráfico superior: Evolución de países seleccionados
-    colors_palette = sns.color_palette("husl", len(countries_to_plot))
-    
-    for idx, country in enumerate(countries_to_plot):
-        country_data = combined_df[combined_df['Country'] == country]
+    # Plotear cada país seleccionado con mejor estilo
+    for idx, country in enumerate(selected_countries):
+        country_data = combined_df[combined_df['Country'] == country].sort_values('Year')
         if not country_data.empty:
-            ax1.plot(country_data['Year'], country_data['Happiness Score'], 
-                    marker='o', linewidth=2.5, markersize=8, label=country,
-                    color=colors_palette[idx], alpha=0.8)
+            # Línea principal
+            ax.plot(country_data['Year'], country_data['Happiness Score'], 
+                   marker='o', linewidth=3.5, markersize=10, label=country,
+                   color=colors_palette[idx], alpha=0.9,
+                   markeredgecolor='white', markeredgewidth=2,
+                   zorder=3)
     
-    # Línea de media global con estilo especial
-    ax1.plot(global_avg['Year'], global_avg['Happiness Score'], 
-            linestyle='--', linewidth=3, color='black', 
-            label='Media Global', alpha=0.6, marker='s', markersize=10)
+    # Línea de media global si está activada
+    if show_global_avg:
+        global_avg = combined_df.groupby('Year')['Happiness Score'].mean().reset_index()
+        ax.plot(global_avg['Year'], global_avg['Happiness Score'], 
+               linestyle='--', linewidth=4, color='#2c3e50', 
+               label='Media Global', alpha=0.7, marker='s', markersize=12,
+               markeredgecolor='white', markeredgewidth=2,
+               zorder=2)
     
-    # Configuración del gráfico superior
-    ax1.set_xlabel('Año', fontsize=12, fontweight='bold')
-    ax1.set_ylabel('Puntuación de Felicidad (Estandarizada)', fontsize=12, fontweight='bold')
-    ax1.set_title('Evolución de la Felicidad Mundial (2015-2019)\nPaíses Representativos', 
-                 fontsize=16, fontweight='bold', pad=20)
-    ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=10, framealpha=0.9)
-    ax1.grid(True, alpha=0.3, linestyle=':', linewidth=1)
-    ax1.set_xticks([2015, 2016, 2017, 2018, 2019])
+    # Configuración del gráfico con mejor tipografía
+    ax.set_xlabel('Año', fontsize=16, fontweight='bold', labelpad=10)
+    ax.set_ylabel('Puntuación de Felicidad', fontsize=16, fontweight='bold', labelpad=10)
+    ax.set_title('Evolución de la Felicidad Mundial (2015-2019)', 
+                fontsize=22, fontweight='bold', pad=25, color='#2c3e50')
     
-    # Gráfico inferior: Distribución de felicidad por año (violin plot)
-    years = sorted(combined_df['Year'].unique())
-    positions = range(len(years))
+    # Leyenda mejorada
+    legend = ax.legend(loc='best', fontsize=12, framealpha=0.98, 
+                      shadow=True, fancybox=True, 
+                      edgecolor='#cccccc', frameon=True,
+                      ncol=2 if len(selected_countries) > 6 else 1)
+    legend.get_frame().set_linewidth(1.5)
     
-    violin_parts = ax2.violinplot([combined_df[combined_df['Year'] == year]['Happiness Score'].values 
-                                   for year in years],
-                                  positions=positions, widths=0.7,
-                                  showmeans=True, showmedians=True)
+    # Grid más sutil pero visible
+    ax.grid(True, alpha=0.25, linestyle='-', linewidth=0.8, color='#bdc3c7', zorder=1)
+    ax.set_axisbelow(True)
     
-    # Colorear los violin plots
-    colors_violin = plt.cm.viridis(np.linspace(0, 1, len(years)))
-    for idx, pc in enumerate(violin_parts['bodies']):
-        pc.set_facecolor(colors_violin[idx])
-        pc.set_alpha(0.7)
-        pc.set_edgecolor('black')
-        pc.set_linewidth(1.5)
+    # Configurar ejes
+    ax.set_xticks([2015, 2016, 2017, 2018, 2019])
+    ax.set_xticklabels([2015, 2016, 2017, 2018, 2019], fontsize=13, fontweight='600')
+    ax.tick_params(axis='y', labelsize=12)
     
-    # Configuración del gráfico inferior
-    ax2.set_xlabel('Año', fontsize=12, fontweight='bold')
-    ax2.set_ylabel('Distribución de Felicidad', fontsize=12, fontweight='bold')
-    ax2.set_title('Distribución Global de Felicidad por Año', 
-                 fontsize=14, fontweight='bold', pad=15)
-    ax2.set_xticks(positions)
-    ax2.set_xticklabels(years)
-    ax2.grid(True, alpha=0.3, axis='y', linestyle=':', linewidth=1)
+    # Mejorar el aspecto de los bordes
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_linewidth(1.5)
+    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['left'].set_color('#34495e')
+    ax.spines['bottom'].set_color('#34495e')
+    
+    # Fondo sutil
+    ax.set_facecolor('#fafafa')
+    fig.patch.set_facecolor('white')
     
     plt.tight_layout()
     return fig
@@ -413,34 +422,31 @@ def show_mapamundi(df_dict):
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Header
-    st.markdown("""
-        <h1 style='text-align: center; color: #667eea;'>
-            🗺️ Mapamundi Interactivo de Felicidad
-        </h1>
-    """, unsafe_allow_html=True)
-    
-    # Descripción
+    # Header y descripción integrados
     col1, col2 = st.columns([3, 1])
+    
     with col1:
         st.markdown("""
-        <div style='background-color: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;'>
-            <p style='font-size: 16px; margin: 0;'>
-            Este mapamundi interactivo muestra la distribución de la felicidad a nivel mundial. 
-            Los países en <strong style='color: #8B0000;'>rojo oscuro</strong> son los más felices, 
-            mientras que los países en <strong style='color: #2c7bb6;'>azul</strong> son los menos felices.
+            <h1 style='color: #667eea; margin-bottom: 15px;'>
+                🗺️ Mapamundi Interactivo de Felicidad
+            </h1>
+            <p style='font-size: 16px; color: #555; margin-bottom: 10px;'>
+                Este mapamundi muestra la distribución de la felicidad a nivel mundial. 
+                Los países en <strong style='color: #8B0000;'>rojo oscuro</strong> son los más felices, 
+                mientras que los países en <strong style='color: #2c7bb6;'>azul</strong> son los menos felices.
             </p>
-            <p style='font-size: 14px; margin-top: 10px; color: #666;'>
-            💡 <strong>Tip</strong>: Pasa el ratón sobre cualquier país para ver su nombre, puntuación de felicidad y ranking.
+            <p style='font-size: 14px; color: #666;'>
+                💡 <strong>Tip</strong>: Pasa el ratón sobre cualquier país para ver su información completa.
             </p>
-        </div>
         """, unsafe_allow_html=True)
     
     with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
         selected_year = st.select_slider(
-            "📅 Selecciona el año:",
+            "📅 Año:",
             options=[2015, 2016, 2017, 2018, 2019],
-            value=2019
+            value=2019,
+            label_visibility="visible"
         )
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -475,64 +481,106 @@ def show_evolucion(combined_df):
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Header
-    st.markdown("""
-        <h1 style='text-align: center; color: #f5576c;'>
-            📈 Evolución de la Felicidad a lo Largo del Tiempo
-        </h1>
-    """, unsafe_allow_html=True)
-    
-    # Descripción
-    st.markdown("""
-    <div style='background-color: #fff5f5; padding: 20px; border-radius: 10px; border-left: 4px solid #f5576c;'>
-        <p style='font-size: 16px; margin: 0;'>
-        Análisis de la evolución temporal de la felicidad en países representativos de diferentes regiones del mundo,
-        comparados con la <strong>media global</strong>.
-        </p>
-        <p style='font-size: 14px; margin-top: 10px; color: #666;'>
-        El gráfico superior muestra las tendencias individuales por país, mientras que el gráfico inferior 
-        presenta la distribución completa de todos los países en cada año.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Visualización
-    with st.spinner('📊 Generando gráficos de evolución...'):
-        fig = plot_happiness_evolution(combined_df)
-        st.pyplot(fig)
-        plt.close()
-    
-    # Insights
-    st.markdown("---")
-    st.markdown("### 💡 Observaciones Clave")
-    
-    col1, col2 = st.columns(2)
+    # Header y controles
+    col1, col2 = st.columns([2, 1])
     
     with col1:
         st.markdown("""
-        <div style='background-color: #e8f5e9; padding: 15px; border-radius: 8px;'>
-            <h4 style='color: #2e7d32; margin-top: 0;'>✅ Tendencias Positivas</h4>
-            <ul style='color: #555;'>
-                <li>Algunos países muestran mejoras constantes</li>
-                <li>La media global se mantiene relativamente estable</li>
-                <li>Países desarrollados lideran consistentemente</li>
-            </ul>
-        </div>
+            <h1 style='color: #f5576c; margin-bottom: 15px;'>
+                📈 Evolución de la Felicidad
+            </h1>
+            <p style='font-size: 16px; color: #555; margin-bottom: 10px;'>
+                Analiza cómo ha cambiado la felicidad de los países entre 2015 y 2019.
+                Selecciona los países que deseas comparar en el panel de la derecha.
+            </p>
         """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown("""
-        <div style='background-color: #fff3e0; padding: 15px; border-radius: 8px;'>
-            <h4 style='color: #e65100; margin-top: 0;'>⚠️ Áreas de Atención</h4>
-            <ul style='color: #555;'>
-                <li>Variabilidad significativa entre regiones</li>
-                <li>Algunos países muestran declives</li>
-                <li>Distribución amplia indica desigualdad global</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Controles de selección
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        # Obtener lista de países únicos ordenados alfabéticamente
+        all_countries = sorted(combined_df['Country'].unique().tolist())
+        
+        # Multiselect con búsqueda
+        selected_countries = st.multiselect(
+            "🔍 Selecciona los países a visualizar:",
+            options=all_countries,
+            default=['Finland', 'Spain', 'United States', 'Brazil', 'Japan'],
+            help="Puedes buscar escribiendo el nombre del país. Selecciona tantos como quieras.",
+            placeholder="Escribe para buscar países..."
+        )
+    
+    with col2:
+        # Opción para mostrar/ocultar media global
+        show_global = st.checkbox(
+            "📊 Mostrar Media Global",
+            value=True,
+            help="Muestra la línea de media global para comparar"
+        )
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Mensaje si no hay países seleccionados
+    if not selected_countries:
+        st.info("👆 Selecciona al menos un país para comenzar a visualizar la evolución de su felicidad.")
+    
+    # Visualización
+    with st.spinner('📊 Generando gráfico de evolución...'):
+        fig = plot_happiness_evolution(combined_df, selected_countries, show_global)
+        st.pyplot(fig)
+        plt.close()
+    
+    # Estadísticas de países seleccionados
+    if selected_countries:
+        st.markdown("---")
+        st.markdown("### � Estadísticas de Países Seleccionados")
+        
+        # Crear columnas dinámicamente según el número de países
+        num_countries = len(selected_countries)
+        cols = st.columns(min(num_countries, 4))  # Máximo 4 columnas
+        
+        for idx, country in enumerate(selected_countries[:4]):  # Mostrar máximo 4
+            with cols[idx]:
+                country_data = combined_df[combined_df['Country'] == country]
+                avg_score = country_data['Happiness Score'].mean()
+                first_year = country_data[country_data['Year'] == 2015]['Happiness Score'].values
+                last_year = country_data[country_data['Year'] == 2019]['Happiness Score'].values
+                
+                if len(first_year) > 0 and len(last_year) > 0:
+                    delta = last_year[0] - first_year[0]
+                    st.metric(
+                        label=country,
+                        value=f"{avg_score:.3f}",
+                        delta=f"{delta:.3f}" if delta != 0 else "Sin cambio",
+                        help=f"Promedio 2015-2019. Delta muestra cambio de 2015 a 2019"
+                    )
+        
+        # Si hay más de 4 países, mostrar el resto en otra fila
+        if num_countries > 4:
+            st.markdown("<br>", unsafe_allow_html=True)
+            remaining = selected_countries[4:]
+            cols2 = st.columns(min(len(remaining), 4))
+            
+            for idx, country in enumerate(remaining[:4]):
+                with cols2[idx]:
+                    country_data = combined_df[combined_df['Country'] == country]
+                    avg_score = country_data['Happiness Score'].mean()
+                    first_year = country_data[country_data['Year'] == 2015]['Happiness Score'].values
+                    last_year = country_data[country_data['Year'] == 2019]['Happiness Score'].values
+                    
+                    if len(first_year) > 0 and len(last_year) > 0:
+                        delta = last_year[0] - first_year[0]
+                        st.metric(
+                            label=country,
+                            value=f"{avg_score:.3f}",
+                            delta=f"{delta:.3f}" if delta != 0 else "Sin cambio"
+                        )
 
 def show_factores(combined_df):
     """Página de análisis de factores"""
