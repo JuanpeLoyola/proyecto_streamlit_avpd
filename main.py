@@ -227,6 +227,74 @@ def plot_happiness_evolution(combined_df, selected_countries, show_global_avg=Tr
     plt.tight_layout()
     return fig
 
+def plot_income_happiness_boxplot(combined_df, year):
+    """
+    ALTERNATIVA AL SCATTER PLOT: Diagrama de Caja por Niveles Económicos.
+    Agrupa los países en 4 cuartiles según su PIB y muestra la distribución de felicidad.
+    Es más limpio y analítico que un scatter plot.
+    """
+    df_year = combined_df[combined_df['Year'] == year].copy()
+    
+    # Creamos 4 categorías de ingresos basadas en los cuartiles del PIB
+    df_year['Income_Group'] = pd.qcut(df_year['Economy (GDP per Capita)'], 
+                                      q=4, 
+                                      labels=['Bajos Ingresos', 'Ingreso Medio-Bajo', 'Ingreso Medio-Alto', 'Altos Ingresos'])
+    
+    # Boxplot
+    fig = px.box(df_year, 
+                 x='Income_Group', 
+                 y='Happiness Score', 
+                 color='Income_Group',
+                 points="all", # Muestra también los puntos individuales
+                 hover_name='Country',
+                 title=f'📦 Distribución de Felicidad por Nivel Económico ({year})',
+                 color_discrete_sequence=px.colors.qualitative.Pastel)
+    
+    fig.update_layout(
+        xaxis_title="Nivel de PIB per Cápita",
+        yaxis_title="Puntuación de Felicidad",
+        showlegend=False,
+        height=500
+    )
+    return fig
+
+def plot_comparison_bars(df, country1, country2, year):
+    """
+    SUSTITUTO DEL RADAR PLOT: Gráfico de Barras Agrupadas.
+    Compara factor por factor entre dos países de forma clara.
+    """
+    # Filtrar datos
+    data = df[df['Year'] == year]
+    df_comp = data[data['Country'].isin([country1, country2])].copy()
+    
+    if df_comp.empty or len(df_comp) < 2:
+        return None
+
+    # Columnas a comparar
+    metrics = ['Economy (GDP per Capita)', 'Family', 'Health (Life Expectancy)', 
+               'Freedom', 'Trust (Government Corruption)', 'Generosity']
+    
+    # Transformar a formato largo para Plotly Express
+    df_melted = df_comp.melt(id_vars=['Country'], value_vars=metrics, var_name='Factor', value_name='Valor')
+    
+    # Gráfico de barras agrupadas
+    fig = px.bar(df_melted, 
+                 x='Valor', 
+                 y='Factor', 
+                 color='Country',
+                 barmode='group',
+                 orientation='h', # Horizontal para leer mejor las etiquetas
+                 title=f'⚔️ Comparativa Directa: {country1} vs {country2} ({year})',
+                 color_discrete_map={country1: COLORS['primary'], country2: COLORS['secondary']})
+    
+    fig.update_layout(
+        yaxis=dict(autorange="reversed"), # Invertir eje Y para que el primer factor salga arriba
+        xaxis_title="Puntuación (Escala Normalizada)",
+        height=500,
+        legend_title_text="País"
+    )
+    return fig
+
 def plot_feature_importance(combined_df):
     """
     Visualización 3: Variables que más afectan a la felicidad
@@ -591,113 +659,181 @@ def show_factores(combined_df):
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Header
+    # Header (Se mantiene fuera de las pestañas para que sea el título común)
     st.markdown("""
         <h1 style='text-align: center; color: #00f2fe;'>
             🎯 Variables que Más Afectan a la Felicidad
         </h1>
     """, unsafe_allow_html=True)
+
+    # --- INICIO DE LA INTEGRACIÓN DE PESTAÑAS ---
+    tab1, tab2 = st.tabs(["📊 Impacto General", "💵 Dinero vs Felicidad"])
+
+    # PESTAÑA 1: TU CÓDIGO ORIGINAL EXACTO (Solo indentado)
+    with tab1:
+        # Descripción Original
+        st.markdown("""
+        <div style='background-color: #e1f5fe; padding: 20px; border-radius: 10px; border-left: 4px solid #00f2fe;'>
+            <p style='font-size: 16px; margin: 0;'>
+            Análisis de <strong>correlación</strong> y <strong>valores promedio</strong> de los factores que influyen 
+            en la felicidad mundial. Las correlaciones positivas más altas indican mayor impacto en la felicidad.
+            </p>
+            <p style='font-size: 14px; margin-top: 10px; color: #666;'>
+            El gráfico izquierdo muestra cómo cada factor se relaciona con la felicidad, 
+            mientras que el derecho presenta los valores promedio de cada variable.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Visualización Original
+        with st.spinner('🎯 Generando análisis de variables...'):
+            fig = plot_feature_importance(combined_df)
+            st.pyplot(fig)
+            plt.close()
+        
+        # Insights detallados Originales
+        st.markdown("---")
+        st.markdown("### 🔍 Análisis Detallado por Factor")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("""
+            <div style='background-color: #fff9c4; padding: 15px; border-radius: 8px; height: 100%;'>
+                <h4 style='color: #f57f17; margin-top: 0;'>💰 Economía (PIB)</h4>
+                <p style='color: #555; font-size: 14px;'>
+                    <strong>Factor #1</strong><br>
+                    Mayor correlación con felicidad.<br>
+                    El desarrollo económico es fundamental.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("""
+            <div style='background-color: #f3e5f5; padding: 15px; border-radius: 8px; height: 100%;'>
+                <h4 style='color: #6a1b9a; margin-top: 0;'>👨‍👩‍👧‍👦 Familia y Apoyo Social</h4>
+                <p style='color: #555; font-size: 14px;'>
+                    <strong>Factor #2</strong><br>
+                    Las relaciones sociales son cruciales.<br>
+                    El apoyo comunitario importa.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown("""
+            <div style='background-color: #e8f5e9; padding: 15px; border-radius: 8px; height: 100%;'>
+                <h4 style='color: #2e7d32; margin-top: 0;'>🏥 Salud</h4>
+                <p style='color: #555; font-size: 14px;'>
+                    <strong>Factor #3</strong><br>
+                    Esperanza de vida saludable.<br>
+                    Acceso a salud de calidad.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("""
+            <div style='background-color: #e3f2fd; padding: 15px; border-radius: 8px; height: 100%;'>
+                <h4 style='color: #1565c0; margin-top: 0;'>🕊️ Libertad</h4>
+                <p style='color: #555; font-size: 14px;'>
+                    Libertad para tomar decisiones de vida.<br>
+                    Importante pero variable.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("""
+            <div style='background-color: #fce4ec; padding: 15px; border-radius: 8px; height: 100%;'>
+                <h4 style='color: #c2185b; margin-top: 0;'>🤝 Generosidad</h4>
+                <p style='color: #555; font-size: 14px;'>
+                    Donaciones y ayuda a otros.<br>
+                    Menor correlación pero presente.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown("""
+            <div style='background-color: #efebe9; padding: 15px; border-radius: 8px; height: 100%;'>
+                <h4 style='color: #4e342e; margin-top: 0;'>🏛️ Confianza (Gobierno)</h4>
+                <p style='color: #555; font-size: 14px;'>
+                    Percepción de corrupción.<br>
+                    Afecta la felicidad general.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # PESTAÑA 2: NUEVO CONTENIDO (Análisis Dinero vs Felicidad)
+    with tab2:
+        # Descripción con tu mismo estilo de diseño (Color naranja para diferenciar)
+        st.markdown("""
+        <div style='background-color: #fff3e0; padding: 20px; border-radius: 10px; border-left: 4px solid #ff9800;'>
+            <p style='font-size: 16px; margin: 0;'>
+            Análisis de la <strong>Paradoja de Easterlin</strong> mediante Diagrama de Cajas.
+            </p>
+            <p style='font-size: 14px; margin-top: 10px; color: #666;'>
+            Este gráfico agrupa los países en 4 niveles de riqueza (PIB). Observa cómo aumenta la felicidad mediana 
+            al subir de nivel económico, pero también observa los <strong>puntos dispersos</strong>: existen países con menos ingresos 
+            que son más felices que otros con altos ingresos.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Selector de año exclusivo para esta gráfica
+        col_sel, _ = st.columns([1, 3])
+        with col_sel:
+            year_box = st.selectbox("📅 Selecciona Año:", [2015, 2016, 2017, 2018, 2019], index=4, key="box_year_selector")
+
+        # Visualización del Boxplot
+        with st.spinner('💵 Analizando relación economía-felicidad...'):
+            # Nota: Asegúrate de tener la función plot_income_happiness_boxplot definida en tu código
+            fig_box = plot_income_happiness_boxplot(combined_df, year_box)
+            st.plotly_chart(fig_box, use_container_width=True)
+        
+def show_comparador(combined_df):
+    """Nueva página para comparar países"""
+    if st.button("⬅️ Volver al Inicio", key="back_comp"):
+        st.session_state.page = "home"
+        st.rerun()
+        
+    st.markdown("<br><h1 style='text-align: center; color: #ff7f0e;'>⚔️ Comparador Cara a Cara</h1>", unsafe_allow_html=True)
     
-    # Descripción
-    st.markdown("""
-    <div style='background-color: #e1f5fe; padding: 20px; border-radius: 10px; border-left: 4px solid #00f2fe;'>
-        <p style='font-size: 16px; margin: 0;'>
-        Análisis de <strong>correlación</strong> y <strong>valores promedio</strong> de los factores que influyen 
-        en la felicidad mundial. Las correlaciones positivas más altas indican mayor impacto en la felicidad.
-        </p>
-        <p style='font-size: 14px; margin-top: 10px; color: #666;'>
-        El gráfico izquierdo muestra cómo cada factor se relaciona con la felicidad, 
-        mientras que el derecho presenta los valores promedio de cada variable.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Selectores
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        c1 = st.selectbox("País A", sorted(combined_df['Country'].unique()), index=0)
+    with col2:
+        c2 = st.selectbox("País B", sorted(combined_df['Country'].unique()), index=1)
+    with col3:
+        year = st.selectbox("Año", [2015, 2016, 2017, 2018, 2019], index=4, key="comp_year")
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Visualización
-    with st.spinner('🎯 Generando análisis de variables...'):
-        fig = plot_feature_importance(combined_df)
-        st.pyplot(fig)
-        plt.close()
-    
-    # Insights detallados
     st.markdown("---")
-    st.markdown("### 🔍 Análisis Detallado por Factor")
     
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-        <div style='background-color: #fff9c4; padding: 15px; border-radius: 8px; height: 100%;'>
-            <h4 style='color: #f57f17; margin-top: 0;'>💰 Economía (PIB)</h4>
-            <p style='color: #555; font-size: 14px;'>
-                <strong>Factor #1</strong><br>
-                Mayor correlación con felicidad.<br>
-                El desarrollo económico es fundamental.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div style='background-color: #f3e5f5; padding: 15px; border-radius: 8px; height: 100%;'>
-            <h4 style='color: #6a1b9a; margin-top: 0;'>👨‍👩‍👧‍👦 Familia y Apoyo Social</h4>
-            <p style='color: #555; font-size: 14px;'>
-                <strong>Factor #2</strong><br>
-                Las relaciones sociales son cruciales.<br>
-                El apoyo comunitario importa.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div style='background-color: #e8f5e9; padding: 15px; border-radius: 8px; height: 100%;'>
-            <h4 style='color: #2e7d32; margin-top: 0;'>🏥 Salud</h4>
-            <p style='color: #555; font-size: 14px;'>
-                <strong>Factor #3</strong><br>
-                Esperanza de vida saludable.<br>
-                Acceso a salud de calidad.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-        <div style='background-color: #e3f2fd; padding: 15px; border-radius: 8px; height: 100%;'>
-            <h4 style='color: #1565c0; margin-top: 0;'>🕊️ Libertad</h4>
-            <p style='color: #555; font-size: 14px;'>
-                Libertad para tomar decisiones de vida.<br>
-                Importante pero variable.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div style='background-color: #fce4ec; padding: 15px; border-radius: 8px; height: 100%;'>
-            <h4 style='color: #c2185b; margin-top: 0;'>🤝 Generosidad</h4>
-            <p style='color: #555; font-size: 14px;'>
-                Donaciones y ayuda a otros.<br>
-                Menor correlación pero presente.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div style='background-color: #efebe9; padding: 15px; border-radius: 8px; height: 100%;'>
-            <h4 style='color: #4e342e; margin-top: 0;'>🏛️ Confianza (Gobierno)</h4>
-            <p style='color: #555; font-size: 14px;'>
-                Percepción de corrupción.<br>
-                Afecta la felicidad general.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Gráfico
+    fig = plot_comparison_bars(combined_df, c1, c2, year)
+    if fig:
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Conclusión automática en texto
+        try:
+            score1 = combined_df[(combined_df['Country']==c1) & (combined_df['Year']==year)]['Happiness Score'].values[0]
+            score2 = combined_df[(combined_df['Country']==c2) & (combined_df['Year']==year)]['Happiness Score'].values[0]
+            diff = score1 - score2
+            winner = c1 if diff > 0 else c2
+            st.success(f"🏆 En {year}, **{winner}** es más feliz por una diferencia de **{abs(diff):.3f}** puntos.")
+        except:
+            pass
 
 def main():
     # Inicializar estado de sesión
@@ -727,6 +863,9 @@ def main():
         if st.button("🎯 Factores", use_container_width=True):
             st.session_state.page = "factores"
             st.rerun()
+        if st.button("⚔️ Comparador", use_container_width=True): 
+            st.session_state.page = "comparador"
+            st.rerun()
         
         st.markdown("---")
         
@@ -750,6 +889,8 @@ def main():
         show_evolucion(combined_df)
     elif st.session_state.page == "factores":
         show_factores(combined_df)
+    elif st.session_state.page == "comparador":
+        show_comparador(combined_df)
 
 if __name__ == "__main__":
     main()
