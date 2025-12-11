@@ -49,6 +49,8 @@ Un dashboard profesional interactivo para visualizar y analizar datos de felicid
 ```bash
 # Las dependencias ya están instaladas con uv
 uv sync
+# Sin embargo, es posible que falte instalar la librería statsmodels
+uv add statsmodels
 ```
 
 ## 💻 Uso
@@ -169,6 +171,28 @@ Los datos provienen del World Happiness Report y han sido preprocesados para inc
 - 🔴 **Europa Nórdica**: Consistentemente más feliz (rojo oscuro en mapa)
 - 🟡 **América y Asia**: Niveles medios de felicidad
 - 🔵 **África Subsahariana**: Desafíos en indicadores de felicidad
+
+## Preguntas específicas a responder:
+
+A continuación se plantean tres preguntas y la posterior respuesta que se concluye a la luz de los datos representados:
+
+- **Pregunta 1**: ¿El dinero es el único motor de la felicidad? (Paradoja de Easterlin)
+   Ve a "Factores" -> Pestaña "💰 Dinero vs Felicidad".
+
+   **Respuesta Concluida**: "Si observamos las cuatro cajas, vemos una 'escalera' ascendente: la línea central de cada caja (la mediana) sube a medida que pasamos de ingresos bajos a altos. Esto confirma que,      en promedio, el dinero sí importa.
+
+   Pero, fíjense en la altura de los puntos individuales. Hay países en el grupo de 'Ingreso Medio' (como Costa Rica o México) que se sitúan tan alto como la media de los países de 'Ingresos Altos'.
+   El gráfico nos enseña que el dinero ayuda a subir el suelo (es difícil ser feliz en la pobreza extrema), pero una vez cubiertas las necesidades básicas, el dinero deja de ser el único límite. Factores           sociales y culturales permiten que países con economías modestas alcancen niveles de felicidad de 'primer mundo'."
+
+- **Pregunta 2**: ¿En qué se diferencian realmente dos países similares?
+   Ve a "⚔️ Comparador".
+
+   **Respuesta concluída**: Seleccionemos Finlandia y Estados Unidos (o Alemania). En el gráfico de barras comparativas, vemos que la barra de 'Economía' es casi idéntica. ¿Por qué Finlandia gana? Miren la         barra de 'Generosidad' y 'Libertad'. Ahí es donde Finlandia saca ventaja. El gráfico de barras nos permite ver la 'anatomía' exacta de la felicidad de cada país.
+
+- **Pregunta 3**: ¿Qué países están mejorando y cuáles colapsando?
+   Ve a "📈 Evolución".
+
+   **Respuesta concluída**: Aunque el ranking del Top 10 se mueve poco, si seleccionamos Venezuela y Benin, vemos dos historias opuestas. Una caída libre frente a un crecimiento sostenido. Este gráfico responde    a la pregunta de la estabilidad política y social.
 
 ## 📝 Archivos de Documentación
 
