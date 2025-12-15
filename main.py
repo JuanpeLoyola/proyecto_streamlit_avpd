@@ -103,12 +103,17 @@ def plot_happiness_world_map(df_dict, selected_year):
         colorbar=dict(
             title=dict(
                 text="Nivel de<br>Felicidad",
-                font=dict(size=14, family='Arial Black')
+                font=dict(size=14, family='Arial Black', color='#2c3e50')
             ),
             thickness=20,
             len=0.7,
             x=1.02,
-            tickfont=dict(size=12),
+            tickfont=dict(size=12, color='#2c3e50'),
+            bgcolor='rgba(255, 255, 255, 0.9)',
+            bordercolor='#cccccc',
+            borderwidth=2,
+            outlinecolor='#333333',
+            outlinewidth=1
         ),
         hovertemplate='<b>%{location}</b><br>' +
                       'Puntuación de Felicidad: %{z:.3f}<br>' +
@@ -298,7 +303,7 @@ def plot_comparison_bars(df, country1, country2, year):
 def plot_feature_importance(combined_df):
     """
     Visualización 3: Variables que más afectan a la felicidad
-    Gráfico de barras con análisis de correlación
+    Gráfico de barras con análisis de correlación de Pearson
     """
     # Calcular correlaciones con Happiness Score
     features = ['Economy (GDP per Capita)', 'Family', 'Health (Life Expectancy)', 
@@ -307,76 +312,73 @@ def plot_feature_importance(combined_df):
     correlations = combined_df[features + ['Happiness Score']].corr()['Happiness Score'][features]
     correlations = correlations.sort_values(ascending=True)
     
-    # Crear figura con dos subgráficos
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+    # Crear figura con un solo gráfico
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=120)
     
-    # Gráfico 1: Barras horizontales de correlación
+    # Barras horizontales de correlación
     colors_bars = [COLORS['success'] if x > 0 else COLORS['danger'] for x in correlations.values]
-    bars = ax1.barh(range(len(correlations)), correlations.values, color=colors_bars, alpha=0.8, edgecolor='black', linewidth=1.5)
+    bars = ax.barh(range(len(correlations)), correlations.values, color=colors_bars, 
+                   alpha=0.85, edgecolor='black', linewidth=2, height=0.7)
     
     # Añadir valores en las barras
     for idx, (value, bar) in enumerate(zip(correlations.values, bars)):
-        ax1.text(value + 0.01 if value > 0 else value - 0.01, idx, 
+        ax.text(value + 0.02 if value > 0 else value - 0.02, idx, 
                 f'{value:.3f}', va='center', 
                 ha='left' if value > 0 else 'right',
-                fontsize=11, fontweight='bold')
+                fontsize=13, fontweight='bold', color='#2c3e50')
     
-    # Configuración del primer gráfico
-    ax1.set_yticks(range(len(correlations)))
-    ax1.set_yticklabels([label.replace(' (', '\n(') for label in correlations.index], fontsize=10)
-    ax1.set_xlabel('Correlación con Felicidad', fontsize=12, fontweight='bold')
-    ax1.set_title('Impacto de Variables en la Felicidad\n(Correlación de Pearson)', 
-                 fontsize=14, fontweight='bold', pad=20)
-    ax1.axvline(x=0, color='black', linestyle='-', linewidth=2, alpha=0.5)
-    ax1.grid(True, alpha=0.3, axis='x', linestyle=':', linewidth=1)
-    ax1.set_xlim(-0.5, 1.0)
+    # Configuración del gráfico
+    ax.set_yticks(range(len(correlations)))
+    ax.set_yticklabels([label.replace(' (', '\n(') for label in correlations.index], 
+                       fontsize=12, fontweight='600')
+    ax.set_xlabel('Correlación con Felicidad', fontsize=14, fontweight='bold', labelpad=10)
+    ax.set_title('Impacto de Variables en la Felicidad\n(Correlación de Pearson)', 
+                 fontsize=18, fontweight='bold', pad=20, color='#2c3e50')
+    ax.axvline(x=0, color='black', linestyle='-', linewidth=2.5, alpha=0.6)
+    ax.grid(True, alpha=0.25, axis='x', linestyle='-', linewidth=1, color='#bdc3c7')
+    ax.set_xlim(-0.1, 1.0)
     
-    # Gráfico 2: Promedio de valores por característica (barras verticales agrupadas)
-    avg_values = combined_df[features].mean().sort_values(ascending=False)
-    std_values = combined_df[features].std()
+    # Mejorar el aspecto
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_linewidth(1.5)
+    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['left'].set_color('#34495e')
+    ax.spines['bottom'].set_color('#34495e')
     
-    x_pos = np.arange(len(avg_values))
-    colors_gradient = plt.cm.plasma(np.linspace(0, 1, len(avg_values)))
-    
-    bars2 = ax2.bar(x_pos, avg_values.values, yerr=std_values[avg_values.index].values,
-                   color=colors_gradient, alpha=0.8, edgecolor='black', 
-                   linewidth=1.5, capsize=5, error_kw={'linewidth': 2, 'alpha': 0.7})
-    
-    # Añadir valores encima de las barras
-    for idx, (value, std) in enumerate(zip(avg_values.values, std_values[avg_values.index].values)):
-        ax2.text(idx, value + std + 0.05, f'{value:.2f}', 
-                ha='center', va='bottom', fontsize=10, fontweight='bold')
-    
-    # Configuración del segundo gráfico
-    ax2.set_xticks(x_pos)
-    ax2.set_xticklabels([label.replace(' (', '\n(') for label in avg_values.index], 
-                        rotation=45, ha='right', fontsize=9)
-    ax2.set_ylabel('Valor Promedio (Estandarizado)', fontsize=12, fontweight='bold')
-    ax2.set_title('Valores Promedio de Factores de Felicidad\n(2015-2019)', 
-                 fontsize=14, fontweight='bold', pad=20)
-    ax2.grid(True, alpha=0.3, axis='y', linestyle=':', linewidth=1)
+    # Fondo sutil
+    ax.set_facecolor('#fafafa')
+    fig.patch.set_facecolor('white')
     
     plt.tight_layout()
     return fig
 
 def show_home():
     """Página de inicio con navegación a las diferentes secciones"""
+    # Botón de tema en la esquina superior derecha
+    col1, col2 = st.columns([7, 1])
+    with col1:
+        st.markdown("<br>", unsafe_allow_html=True)
+    with col2:
+        if st.button("🎨 Tema", key="theme_toggle", help="Haz clic para ver cómo cambiar el tema"):
+            st.toast("⚙️ Para cambiar el tema: Menú (⋮) → Settings → Theme", icon="💡")
+    
     # Header principal
     st.markdown("""
-        <h1 style='text-align: center; color: #1f77b4; padding: 20px; font-size: 48px;'>
+        <h1 style='text-align: center; color: #5a9fd4; font-size: 48px; margin-bottom: 10px;'>
             🌍 World Happiness Dashboard 😊
         </h1>
         <p style='text-align: center; font-size: 20px; color: #666; margin-bottom: 30px;'>
             Análisis Profesional de Felicidad Mundial (2015-2019)
         </p>
-        <hr style='border: 2px solid #1f77b4;'>
+        <hr style='border: 2px solid #5a9fd4;'>
     """, unsafe_allow_html=True)
     
     # Introducción
     st.markdown("""
-    <div style='text-align: center; padding: 20px; background-color: #f0f8ff; border-radius: 10px; margin: 20px 0;'>
-        <h3 style='color: #1f77b4;'>Bienvenido al Dashboard de Felicidad Mundial</h3>
-        <p style='font-size: 16px; color: #555;'>
+    <div style='text-align: center; padding: 20px; background-color: transparent; border-radius: 10px; margin: 20px 0;'>
+        <h3 style='color: #5a9fd4;'>Bienvenido al Dashboard de Felicidad Mundial</h3>
+        <p style='font-size: 16px; color: #b0b0b0;'>
             Explora datos de felicidad de más de 150 países a través de visualizaciones interactivas.
             Descubre qué hace felices a las naciones y cómo ha evolucionado la felicidad en los últimos años.
         </p>
@@ -476,7 +478,7 @@ def show_home():
     st.markdown("---")
     st.markdown("""
         <p style='text-align: center; color: #888; font-size: 14px;'>
-            Dashboard creado con ❤️ usando Streamlit, Matplotlib, Seaborn y Plotly<br>
+            Dashboard creado usando Streamlit, Matplotlib, Seaborn y Plotly<br>
             Datos: World Happiness Report (2015-2019)
         </p>
     """, unsafe_allow_html=True)
@@ -607,7 +609,7 @@ def show_evolucion(combined_df):
     # Estadísticas de países seleccionados
     if selected_countries:
         st.markdown("---")
-        st.markdown("### � Estadísticas de Países Seleccionados")
+        st.markdown("### Estadísticas de Países Seleccionados")
         
         # Crear columnas dinámicamente según el número de países
         num_countries = len(selected_countries)
@@ -667,20 +669,20 @@ def show_factores(combined_df):
     """, unsafe_allow_html=True)
 
     # --- INICIO DE LA INTEGRACIÓN DE PESTAÑAS ---
-    tab1, tab2 = st.tabs(["📊 Impacto General", "💵 Dinero vs Felicidad"])
+    tab1, tab2, tab3 = st.tabs(["📊 Impacto General", "💵 Dinero vs Felicidad", "⚔️ Comparador"])
 
     # PESTAÑA 1: TU CÓDIGO ORIGINAL EXACTO (Solo indentado)
     with tab1:
         # Descripción Original
         st.markdown("""
         <div style='background-color: #e1f5fe; padding: 20px; border-radius: 10px; border-left: 4px solid #00f2fe;'>
-            <p style='font-size: 16px; margin: 0;'>
-            Análisis de <strong>correlación</strong> y <strong>valores promedio</strong> de los factores que influyen 
+            <p style='font-size: 16px; margin: 0; color: #1a237e;'>
+            Análisis de <strong>correlación de Pearson</strong> para identificar los factores que más influyen 
             en la felicidad mundial. Las correlaciones positivas más altas indican mayor impacto en la felicidad.
             </p>
-            <p style='font-size: 14px; margin-top: 10px; color: #666;'>
-            El gráfico izquierdo muestra cómo cada factor se relaciona con la felicidad, 
-            mientras que el derecho presenta los valores promedio de cada variable.
+            <p style='font-size: 14px; margin-top: 10px; color: #424242;'>
+            El gráfico muestra cómo cada factor se relaciona con la felicidad. 
+            Una correlación cercana a 1 indica una relación muy fuerte y positiva.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -777,10 +779,10 @@ def show_factores(combined_df):
         # Descripción con tu mismo estilo de diseño (Color naranja para diferenciar)
         st.markdown("""
         <div style='background-color: #fff3e0; padding: 20px; border-radius: 10px; border-left: 4px solid #ff9800;'>
-            <p style='font-size: 16px; margin: 0;'>
+            <p style='font-size: 16px; margin: 0; color: #e65100;'>
             Análisis de la <strong>Paradoja de Easterlin</strong> mediante Diagrama de Cajas.
             </p>
-            <p style='font-size: 14px; margin-top: 10px; color: #666;'>
+            <p style='font-size: 14px; margin-top: 10px; color: #424242;'>
             Este gráfico agrupa los países en 4 niveles de riqueza (PIB). Observa cómo aumenta la felicidad mediana 
             al subir de nivel económico, pero también observa los <strong>puntos dispersos</strong>: existen países con menos ingresos 
             que son más felices que otros con altos ingresos.
@@ -800,6 +802,49 @@ def show_factores(combined_df):
             # Nota: Asegúrate de tener la función plot_income_happiness_boxplot definida en tu código
             fig_box = plot_income_happiness_boxplot(combined_df, year_box)
             st.plotly_chart(fig_box, use_container_width=True)
+
+    # PESTAÑA 3: COMPARADOR CARA A CARA
+    with tab3:
+        st.markdown("""
+        <div style='background-color: #fff5f5; padding: 20px; border-radius: 10px; border-left: 4px solid #f5576c;'>
+            <p style='font-size: 16px; margin: 0; color: #c62828;'>
+            Compara directamente dos países y observa en qué factores destaca cada uno.
+            </p>
+            <p style='font-size: 14px; margin-top: 10px; color: #424242;'>
+            Selecciona dos países y un año para ver una comparativa detallada factor por factor.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Selectores
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col1:
+            c1 = st.selectbox("🌍 País A", sorted(combined_df['Country'].unique()), index=0, key="comp_c1")
+        with col2:
+            c2 = st.selectbox("🌎 País B", sorted(combined_df['Country'].unique()), index=1, key="comp_c2")
+        with col3:
+            year_comp = st.selectbox("📅 Año", [2015, 2016, 2017, 2018, 2019], index=4, key="comp_year")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Gráfico
+        fig_comp = plot_comparison_bars(combined_df, c1, c2, year_comp)
+        if fig_comp:
+            st.plotly_chart(fig_comp, use_container_width=True)
+            
+            # Conclusión automática en texto
+            try:
+                score1 = combined_df[(combined_df['Country']==c1) & (combined_df['Year']==year_comp)]['Happiness Score'].values[0]
+                score2 = combined_df[(combined_df['Country']==c2) & (combined_df['Year']==year_comp)]['Happiness Score'].values[0]
+                diff = score1 - score2
+                winner = c1 if diff > 0 else c2
+                st.success(f"🏆 En {year_comp}, **{winner}** es más feliz por una diferencia de **{abs(diff):.3f}** puntos.")
+            except:
+                pass
+        else:
+            st.warning("⚠️ No hay datos disponibles para los países seleccionados en ese año.")
         
 def show_comparador(combined_df):
     """Nueva página para comparar países"""
@@ -851,9 +896,6 @@ def main():
         
         # Navegación en sidebar
         st.subheader("🧭 Navegación")
-        if st.button("🏠 Inicio", use_container_width=True):
-            st.session_state.page = "home"
-            st.rerun()
         if st.button("🗺️ Mapamundi", use_container_width=True):
             st.session_state.page = "mapamundi"
             st.rerun()
@@ -862,9 +904,6 @@ def main():
             st.rerun()
         if st.button("🎯 Factores", use_container_width=True):
             st.session_state.page = "factores"
-            st.rerun()
-        if st.button("⚔️ Comparador", use_container_width=True): 
-            st.session_state.page = "comparador"
             st.rerun()
         
         st.markdown("---")
@@ -889,8 +928,6 @@ def main():
         show_evolucion(combined_df)
     elif st.session_state.page == "factores":
         show_factores(combined_df)
-    elif st.session_state.page == "comparador":
-        show_comparador(combined_df)
 
 if __name__ == "__main__":
     main()

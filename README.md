@@ -26,23 +26,41 @@ Un dashboard profesional interactivo para visualizar y analizar datos de felicid
    - Estadísticas del año seleccionado
 
 #### 📈 **2. Evolución Temporal**
-   - **Gráfico de líneas** con países representativos de diferentes regiones
-   - Comparación con la **media global**
-   - **Violin plots** mostrando la distribución completa por año
+   - **Selector múltiple de países** con búsqueda integrada
+   - Gráfico de líneas de alta calidad (DPI 150)
+   - Opción para mostrar/ocultar **media global**
+   - Paleta de colores brillante para mejor distinción
    - Análisis de tendencias a lo largo del tiempo (2015-2019)
-   - Insights sobre tendencias positivas y áreas de atención
+   - Identificación de países con mejoras o declives significativos
 
 #### 🎯 **3. Análisis de Factores**
+
+Página organizada en **tres pestañas** para análisis completo:
+
+##### **📊 Impacto General**
    - **Correlación de Pearson** de cada factor con la felicidad
-   - **Valores promedio** con desviación estándar
-   - Visualización dual: correlaciones + promedios
-   - **Análisis detallado** de los 6 factores clave:
+   - Gráfico de barras horizontal optimizado
+   - Visualización clara de qué factores tienen mayor impacto
+   - **Análisis de los 6 factores clave**:
      - 💰 Economía (PIB per cápita)
      - 👨‍👩‍👧‍👦 Familia y apoyo social
      - 🏥 Salud y esperanza de vida
      - 🕊️ Libertad para tomar decisiones
      - 🤝 Generosidad
      - 🏛️ Confianza en el gobierno
+
+##### **💰 Dinero vs Felicidad**
+   - **Análisis de la Paradoja de Easterlin**
+   - Diagrama de cajas agrupando países por nivel de PIB
+   - Visualización de cómo el dinero influye en la felicidad
+   - Identificación de países que superan las expectativas económicas
+
+##### **⚔️ Comparador de Países**
+   - **Comparación directa** entre dos países seleccionados
+   - Gráfico de barras horizontal comparativo
+   - Análisis factor por factor
+   - Selector de año para análisis temporal
+   - Ideal para entender diferencias entre países similares
 
 ## 🚀 Instalación
 
@@ -101,7 +119,7 @@ Los datos provienen del World Happiness Report y han sido preprocesados para inc
 - **NumPy** - Operaciones numéricas y procesamiento
 - **scikit-learn** - Estandarización de datos
 
-## � Características Profesionales
+## ✨ Características Profesionales
 
 ### Diseño y UX
 - ✅ **Interfaz de navegación por páginas** con estado de sesión
@@ -109,13 +127,18 @@ Los datos provienen del World Happiness Report y han sido preprocesados para inc
 - ✅ **Tarjetas de navegación** con colores distintivos
 - ✅ **Sidebar persistente** con navegación rápida
 - ✅ **Botones de regreso** en cada página
+- ✅ **Contraste optimizado** para accesibilidad en todos los temas
+- ✅ **Paleta de colores coherente** con texto legible en fondos claros y oscuros
+- ✅ **Encabezados con fondo transparente** que se adaptan al tema seleccionado
 
 ### Visualizaciones
 - ✅ **Mapamundi interactivo** con Plotly (hover, zoom, pan)
-- ✅ **Gráficos duales** para análisis completo
+- ✅ **Gráficos de alta calidad** (DPI 150) para presentaciones profesionales
+- ✅ **Selector múltiple con búsqueda** para análisis personalizados
+- ✅ **Pestañas organizadas** en página de Factores (3 análisis diferentes)
 - ✅ **Paletas de colores personalizadas** profesionales
-- ✅ **Violin plots** para distribuciones
-- ✅ **Heatmaps** con valores numéricos
+- ✅ **Tooltips informativos** en mapamundi con datos detallados
+- ✅ **Barra de color mejorada** en mapamundi con contraste optimizado
 
 ### Rendimiento
 - ✅ **Carga de datos optimizada** con `@st.cache_data`
@@ -126,45 +149,55 @@ Los datos provienen del World Happiness Report y han sido preprocesados para inc
 ### Contenido
 - ✅ **Métricas en tiempo real** con `st.metric`
 - ✅ **Insights automáticos** organizados por sección
-- ✅ **Descripciones contextuales** en cada visualización
-- ✅ **Cajas de información** con bordes de color
+- ✅ **Descripciones contextuales** en cada visualización con cajas informativas
+- ✅ **Cajas de información** con bordes de color y texto de alto contraste
 - ✅ **Documentación completa** (README + INTERFAZ.md)
+- ✅ **Análisis comparativo** entre países
+- ✅ **Paradoja de Easterlin** visualizada con diagramas de cajas
 
 ## 🧭 Navegación del Dashboard
 
-### Tres Formas de Navegar:
+### Dos Formas de Navegar:
 
 1. **Página de Inicio**: Click en las tarjetas de colores con gradientes
-2. **Sidebar**: Botones de navegación siempre visibles
-3. **Botones de Regreso**: "⬅️ Volver al Inicio" en cada página
+2. **Sidebar**: Botones de navegación siempre visibles (Mapamundi, Evolución, Factores)
+
+Cada página tiene un botón "⬅️ Volver al Inicio" para regresar fácilmente.
 
 ### Flujo de Usuario:
 
 ```
 🏠 Inicio
    ↓
-   ├─→ 🗺️ Mapamundi → Explora países → 🏠 Volver
-   ├─→ 📈 Evolución → Analiza tendencias → 🏠 Volver
-   └─→ 🎯 Factores → Descubre impactos → 🏠 Volver
+   ├─→ 🗺️ Mapamundi → Explora países por año → 🏠 Volver
+   ├─→ 📈 Evolución → Compara países en el tiempo → 🏠 Volver
+   └─→ 🎯 Factores → 3 pestañas de análisis → 🏠 Volver
+          ├─→ 📊 Impacto General (Correlaciones)
+          ├─→ 💰 Dinero vs Felicidad (Paradoja Easterlin)
+          └─→ ⚔️ Comparador (País A vs País B)
 ```
 
 ## 🔍 Insights Principales
 
-### Factores de Felicidad (Orden de Impacto):
+### Factores de Felicidad (Correlación con Happiness Score):
 
-1. **💰 Economía (PIB per cápita)** - Mayor correlación con felicidad
-2. **👨‍👩‍👧‍👦 Familia y apoyo social** - Segundo factor más importante
-3. **🏥 Salud (esperanza de vida)** - Impacto significativo en bienestar
-4. **🕊️ Libertad** - Importante para decisiones de vida
-5. **🏛️ Confianza (gobierno)** - Afecta percepción general
-6. **🤝 Generosidad** - Menor correlación pero presente
+Según el análisis de **correlación de Pearson**, el orden de impacto es:
+
+1. **💰 Economía (PIB per cápita)** - Mayor correlación con felicidad (~0.78)
+2. **👨‍👩‍👧‍👦 Familia y apoyo social** - Segundo factor más importante (~0.73)
+3. **🏥 Salud (esperanza de vida)** - Impacto significativo en bienestar (~0.72)
+4. **🕊️ Libertad** - Importante para decisiones de vida (~0.56)
+5. **🏛️ Confianza (gobierno)** - Afecta percepción general (~0.42)
+6. **🤝 Generosidad** - Menor correlación pero presente (~0.18)
 
 ### Tendencias Temporales:
 
-- 📊 La media global se mantiene relativamente **estable** (2015-2019)
-- 🌍 Existe **variación considerable** entre regiones
-- 🇫🇮 **Finlandia** lidera como país más feliz en 2019
-- 📈 Países desarrollados mantienen **consistencia** en el top
+- 📊 La felicidad global se mantiene relativamente **estable** (2015-2019)
+- 🌍 Existe **variación considerable** entre regiones y países
+- 🇫🇮 **Países Nórdicos** (Finlandia, Noruega, Dinamarca) lideran consistentemente
+- 📈 Países desarrollados mantienen **consistencia** en el top 10
+- 📉 Algunos países muestran **declives significativos** (ej: Venezuela)
+- 📈 Otros países muestran **mejoras sostenidas** (ej: Benín)
 
 ### Geografía de la Felicidad:
 
