@@ -82,14 +82,25 @@ Página organizada en **tres pestañas** para análisis completo:
 
 ## 🚀 Instalación
 
+### Opción 1: Usando uv (recomendado para desarrollo)
+
 ```bash
-# Las dependencias ya están instaladas con uv
+# Sincronizar dependencias con uv
 uv sync
-# Sin embargo, es posible que falte instalar la librería statsmodels
-uv add statsmodels
 ```
 
+### Opción 2: Usando pip (para despliegue en Streamlit Cloud)
+
+```bash
+# Instalar dependencias desde requirements.txt
+pip install -r requirements.txt
+```
+
+**Nota**: El archivo `requirements.txt` se generó automáticamente desde `pyproject.toml` para compatibilidad con Streamlit Cloud.
+
 ## 💻 Uso
+
+### Ejecución Local
 
 ```bash
 # Ejecutar el dashboard
@@ -98,11 +109,19 @@ uv run streamlit run main.py
 
 El dashboard se abrirá automáticamente en tu navegador en `http://localhost:8501`
 
+### Despliegue en Streamlit Cloud
+
+El proyecto está configurado para desplegarse en [Streamlit Cloud](https://streamlit.io/cloud). El archivo `requirements.txt` contiene todas las dependencias necesarias.
+
 ## 📁 Estructura del Proyecto
 
 ```
 proyecto_streamlit/
 ├── main.py                 # Dashboard principal de Streamlit
+├── requirements.txt        # Dependencias para Streamlit Cloud
+├── pyproject.toml          # Configuración de dependencias con uv
+├── LICENSE                 # Licencia MIT
+├── README.md               # Documentación del proyecto
 ├── data/
 │   ├── 2015_processed.csv # Datos procesados 2015
 │   ├── 2016_processed.csv # Datos procesados 2016
