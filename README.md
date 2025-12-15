@@ -255,17 +255,13 @@ Este proyecto fue desarrollado por:
 
 ## 🤝 Contribución
 
-Este proyecto es parte de prácticas académicas. Para mejoras o sugerencias:
+Este es un proyecto académico completado. El código está disponible bajo licencia MIT para uso, aprendizaje y modificación libre.
 
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+Si deseas usar este proyecto como base para tu propio trabajo, siéntete libre de hacer un fork del repositorio.
 
 ## 📜 Licencia
 
-Proyecto académico - Master AVPD
+Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
