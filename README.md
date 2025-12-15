@@ -2,6 +2,24 @@
 
 Un dashboard profesional interactivo para visualizar y analizar datos de felicidad mundial (2015-2019) con interfaz de navegación moderna por páginas.
 
+## 📑 Tabla de Contenidos
+
+- [✨ Características Destacadas](#-características-destacadas)
+  - [🏠 Interfaz Moderna con Navegación](#-interfaz-moderna-con-navegación)
+  - [📊 Tres Visualizaciones Principales](#-tres-visualizaciones-principales)
+- [🚀 Instalación](#-instalación)
+- [💻 Uso](#-uso)
+- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [📊 Datos](#-datos)
+- [🎨 Tecnologías Utilizadas](#-tecnologías-utilizadas)
+- [✨ Características Profesionales](#-características-profesionales)
+- [🧭 Navegación del Dashboard](#-navegación-del-dashboard)
+- [🔍 Insights Principales](#-insights-principales)
+- [❓ Preguntas Específicas a Responder](#-preguntas-específicas-a-responder)
+- [👥 Autores](#-autores)
+- [🤝 Contribución](#-contribución)
+- [📜 Licencia](#-licencia)
+
 ## ✨ Características Destacadas
 
 ### 🏠 Interfaz Moderna con Navegación
@@ -151,7 +169,7 @@ Los datos provienen del World Happiness Report y han sido preprocesados para inc
 - ✅ **Insights automáticos** organizados por sección
 - ✅ **Descripciones contextuales** en cada visualización con cajas informativas
 - ✅ **Cajas de información** con bordes de color y texto de alto contraste
-- ✅ **Documentación completa** (README + INTERFAZ.md)
+- ✅ **Documentación completa** en README
 - ✅ **Análisis comparativo** entre países
 - ✅ **Paradoja de Easterlin** visualizada con diagramas de cajas
 
@@ -227,11 +245,13 @@ A continuación se plantean tres preguntas y la posterior respuesta que se concl
 
    **Respuesta concluída**: Aunque el ranking del Top 10 se mueve poco, si seleccionamos Venezuela y Benin, vemos dos historias opuestas. Una caída libre frente a un crecimiento sostenido. Este gráfico responde    a la pregunta de la estabilidad política y social.
 
-## 📝 Archivos de Documentación
+## � Autores
 
-- **README.md** (este archivo): Documentación general del proyecto
-- **INTERFAZ.md**: Detalles de la nueva interfaz y navegación
-- **pyproject.toml**: Configuración de dependencias con uv
+Este proyecto fue desarrollado por:
+
+- **Juan Pedro García Sanz** 
+- **Pablo Revuelto de Miguel**
+- **Carlos Seoane Fernández**
 
 ## 🤝 Contribución
 
@@ -249,6 +269,6 @@ Proyecto académico - Master AVPD
 
 ---
 
-**✨ Creado con ❤️ usando Streamlit, Plotly, Matplotlib y Seaborn**
+**✨ Desarrollado con Streamlit, Plotly, Matplotlib y Seaborn**
 
 **📊 Datos: World Happiness Report (2015-2019)**
