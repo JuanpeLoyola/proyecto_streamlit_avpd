@@ -225,7 +225,6 @@ def plot_happiness_evolution(combined_df, selected_countries, show_global_avg=Tr
     ax.spines['left'].set_color('#34495e')
     ax.spines['bottom'].set_color('#34495e')
     
-    # Fondo sutil
     ax.set_facecolor('#fafafa')
     fig.patch.set_facecolor('white')
     
@@ -346,7 +345,6 @@ def plot_feature_importance(combined_df):
     ax.spines['left'].set_color('#34495e')
     ax.spines['bottom'].set_color('#34495e')
     
-    # Fondo sutil
     ax.set_facecolor('#fafafa')
     fig.patch.set_facecolor('white')
     
@@ -673,7 +671,6 @@ def show_factores(combined_df):
 
     # PESTAÑA 1: TU CÓDIGO ORIGINAL EXACTO (Solo indentado)
     with tab1:
-        # Descripción Original
         st.markdown("""
         <div style='background-color: #e1f5fe; padding: 20px; border-radius: 10px; border-left: 4px solid #00f2fe;'>
             <p style='font-size: 16px; margin: 0; color: #1a237e;'>
@@ -776,7 +773,6 @@ def show_factores(combined_df):
 
     # PESTAÑA 2: NUEVO CONTENIDO (Análisis Dinero vs Felicidad)
     with tab2:
-        # Descripción con tu mismo estilo de diseño (Color naranja para diferenciar)
         st.markdown("""
         <div style='background-color: #fff3e0; padding: 20px; border-radius: 10px; border-left: 4px solid #ff9800;'>
             <p style='font-size: 16px; margin: 0; color: #e65100;'>
